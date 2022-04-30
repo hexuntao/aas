@@ -15,7 +15,8 @@
 </p>
 
 #### 项目说明
-```Api Admin Starter``` 管理系统，是基于 ```Nestjs```，```Vue``` 入门级别 RBAC 管理平台。
+
+`Api Admin Starter` 管理系统，是基于 `Nestjs`，`Vue` 入门级别 RBAC 管理平台。
 
 核心模块包括： 用户、角色、菜单、日志、文件管理等功能。快速搭建企业级中后台产品。
 
@@ -40,11 +41,11 @@ pnpm serve
 
 后端
 
-> 后端需要 ```MySql``` 、```Redis``` 环境
+> 后端需要 `MySql` 、`Redis` 环境
 
-本项目使用 ```TypeOrm``` 连接 ```MySql``` 数据库， 运行前请在 ```server/src/config/dev.yml``` 文件中配置好数据库连接
+本项目使用 `TypeOrm` 连接 `MySql` 数据库， 运行前请在 `server/src/config/dev.yml` 文件中配置好数据库连接
 
-```MySql``` 数据库文件在 ```aas/db/kapok.sql``` ，可以通过 ```MySQL WorkBench``` 或 ``` Navicat``` 等工具软件导入。
+`MySql` 数据库文件在 `aas/db/aas.sql` ，可以通过 `MySQL WorkBench` 或 ` Navicat` 等工具软件导入。
 
 ```sh
 # 打开后端根目录
@@ -59,12 +60,12 @@ npm run start:dev
 
 测试帐号密码： admin/admin
 
-> 批量导入的用户默认密码： Q123456 ， 可在 ```server/src/config``` 中配置 初始密码
+> 批量导入的用户默认密码： Q123456 ， 可在 `server/src/config` 中配置 初始密码
 
 #### 功能
 
-- [X] 用户管理
-- [X] 角色管理
-- [X] 菜单管理
-- [X] 文件上传
+- [x] 用户管理
+- [x] 角色管理
+- [x] 菜单管理
+- [x] 文件上传
 - [ ] 定时任务
