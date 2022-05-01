@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import {
   FastifyAdapter,
@@ -11,6 +11,7 @@ import { setupSwagger } from './setup-swagger';
 import { LoggerService } from '@/shared/logger/logger.service';
 
 import { HttpExceptionFilter } from '@/filters/http-exception.filter';
+import { TransformInterceptor } from '@/interceptors/transform.interceptor';
 
 const PORT = process.env.PORT;
 
@@ -31,6 +32,9 @@ async function bootstrap() {
 
   // 过滤器
   app.useGlobalFilters(new HttpExceptionFilter(app.get(LoggerService)));
+
+  // 拦截器
+  app.useGlobalInterceptors(new TransformInterceptor(new Reflector()));
 
   // swagger
   setupSwagger(app);
