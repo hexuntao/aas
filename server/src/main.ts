@@ -1,6 +1,13 @@
 import 'dotenv/config';
 import { NestFactory, Reflector } from '@nestjs/core';
-import { Logger } from '@nestjs/common';
+import {
+  HttpStatus,
+  Logger,
+  UnprocessableEntityException,
+  ValidationPipe,
+} from '@nestjs/common';
+import { ValidationError } from 'class-validator';
+import { flatten } from 'lodash';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -29,6 +36,25 @@ async function bootstrap() {
 
   // 日志 logger
   app.useLogger(app.get(LoggerService));
+
+  // 管道验证器
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      exceptionFactory: (errors: ValidationError[]) => {
+        return new UnprocessableEntityException(
+          flatten(
+            errors
+              .filter((item) => !!item.constraints)
+              .map((item) => Object.values(item.constraints)),
+          ).join('; '),
+        );
+      },
+    }),
+  );
 
   // 过滤器
   app.useGlobalFilters(new HttpExceptionFilter(app.get(LoggerService)));
