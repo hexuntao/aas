@@ -30,4 +30,16 @@ export default {
     password: '',
     db: 0,
   },
+  /** logger config */
+  logger: {
+    // level:'info',
+    // consoleLevel:'info',
+    // timestamp:false,
+    // maxFiles:'15d',
+    // maxFileSize:'2m',
+    // disableConsoleAtProd:true,
+    // dir:'',
+    // errorLogName:'',
+    // appLogName:'',
+  },
 };

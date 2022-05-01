@@ -5,10 +5,10 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-
+import { AppModule } from './app.module';
 import { setupSwagger } from './setup-swagger';
 
-import { AppModule } from './app.module';
+import { LoggerService } from '@/shared/logger/logger.service';
 
 const PORT = process.env.PORT;
 
@@ -23,6 +23,9 @@ async function bootstrap() {
 
   // 跨源资源共享
   app.enableCors();
+
+  // 日志 logger
+  app.useLogger(app.get(LoggerService));
 
   // swagger
   setupSwagger(app);

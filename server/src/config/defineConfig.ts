@@ -1,4 +1,4 @@
-// import { LoggerModuleOptions as LoggerConfigOptions } from 'src/shared/logger/logger.interface';
+import { LoggerModuleOptions as LoggerConfigOptions } from '@/shared/logger/logger.interface';
 import { LoggerOptions } from 'typeorm';
 
 /**
@@ -35,7 +35,7 @@ export interface IConfig {
   /**
    * 应用级别日志配置
    */
-  // logger?: LoggerConfigOptions;
+  logger?: LoggerConfigOptions;
   /**
    * Swagger文档配置
    */
