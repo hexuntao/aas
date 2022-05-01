@@ -10,6 +10,8 @@ import { setupSwagger } from './setup-swagger';
 
 import { LoggerService } from '@/shared/logger/logger.service';
 
+import { HttpExceptionFilter } from '@/filters/http-exception.filter';
+
 const PORT = process.env.PORT;
 
 async function bootstrap() {
@@ -26,6 +28,9 @@ async function bootstrap() {
 
   // 日志 logger
   app.useLogger(app.get(LoggerService));
+
+  // 过滤器
+  app.useGlobalFilters(new HttpExceptionFilter(app.get(LoggerService)));
 
   // swagger
   setupSwagger(app);
