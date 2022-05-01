@@ -15,6 +15,8 @@ import {
 } from '@/shared/logger/logger.interface';
 import { LOGGER_MODULE_OPTIONS } from '@/shared/logger/logger.constants';
 
+import { SharedModule } from '@/shared/shared.module';
+
 @Module({
   imports: [
     // 配置模块
@@ -73,6 +75,8 @@ import { LOGGER_MODULE_OPTIONS } from '@/shared/logger/logger.constants';
       // global module
       true,
     ),
+    // 共享模块
+    SharedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
