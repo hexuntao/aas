@@ -11,7 +11,7 @@ export default {
     port: 3306,
     username: 'root',
     password: 'root123456',
-    database: 'quapi',
+    database: 'aas',
     synchronize: true,
     logging: false,
     timezone: '+08:00', // 东八区
