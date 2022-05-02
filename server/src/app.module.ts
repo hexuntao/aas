@@ -20,6 +20,7 @@ import { LOGGER_MODULE_OPTIONS } from '@/shared/logger/logger.constants';
 import { SharedModule } from '@/shared/shared.module';
 import { WSModule } from '@/ws/ws.module';
 import { MissionModule } from '@/mission/mission.module';
+import { AdminModule } from '@/modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -85,6 +86,7 @@ import { MissionModule } from '@/mission/mission.module';
     WSModule,
     // 定时模块
     MissionModule.forRoot(),
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
