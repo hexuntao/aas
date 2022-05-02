@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import SysLoginLog from '../../entities/admin/sys-login-log.entity';
-import SysTaskLog from '../../entities/admin/sys-task-log.entity';
+import SysLoginLog from '@/common/entities/admin/sys-login-log.entity';
+import SysTaskLog from '@/common/entities/admin/sys-task-log.entity';
 import { Repository } from 'typeorm';
 import { UAParser } from 'ua-parser-js';
 import { LoginLogInfo, TaskLogInfo } from './log.class';

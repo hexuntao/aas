@@ -5,11 +5,11 @@ import { UnknownElementException } from '@nestjs/core/errors/exceptions/unknown-
 import { InjectRepository } from '@nestjs/typeorm';
 import { Queue } from 'bull';
 import { isEmpty } from 'lodash';
-import { MISSION_KEY_METADATA } from '@/contants/decorator.contants';
-import { HttpException } from '@/exceptions/http.exception';
-import SysTask from '../../entities/admin/sys-task.entity';
-import { LoggerService } from '@/shared/logger/logger.service';
-import { RedisService } from '@/shared/services/redis.service';
+import { MISSION_KEY_METADATA } from '@/common/contants/decorator.contants';
+import { ApiException } from '@/common/exceptions/api.exception';
+import SysTask from '@/common/entities/admin/sys-task.entity';
+import { LoggerService } from '@/modules/logger/logger.service';
+import { RedisService } from '@/modules/shared/services/redis.service';
 import { Repository } from 'typeorm';
 import {
   SYS_TASK_QUEUE_NAME,
@@ -268,7 +268,7 @@ export class SysTaskService implements OnModuleInit {
       }
       // 所执行的任务不存在
       if (!service || !(exec in service)) {
-        throw new HttpException(10102);
+        throw new ApiException(10102);
       }
       // 检测是否有Mission注解
       const hasMission = this.reflector.get<boolean>(
@@ -278,12 +278,12 @@ export class SysTaskService implements OnModuleInit {
       );
       // 如果没有，则抛出错误
       if (!hasMission) {
-        throw new HttpException(10101);
+        throw new ApiException(10101);
       }
     } catch (e) {
       if (e instanceof UnknownElementException) {
         // 任务不存在
-        throw new HttpException(10102);
+        throw new ApiException(10102);
       } else {
         // 其余错误则不处理，继续抛出
         throw e;

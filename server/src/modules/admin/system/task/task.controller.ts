@@ -6,10 +6,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { isEmpty } from 'lodash';
-import { PageResult } from '@/class/result.class';
-import { PageOptionsDto } from '@/dto/page.dto';
-import { HttpException } from '@/exceptions/http.exception';
-import SysTask from '../../entities/admin/sys-task.entity';
+import { PageResult } from '@/common/class/result.class';
+import { PageOptionsDto } from '@/common/dto/page.dto';
+import { ApiException } from '@/common/exceptions/api.exception';
+import SysTask from '@/common/entities/admin/sys-task.entity';
 import { ADMIN_PREFIX } from '../../admin.constants';
 import { CheckIdTaskDto, CreateTaskDto, UpdateTaskDto } from './task.dto';
 import { SysTaskService } from './task.service';
@@ -66,7 +66,7 @@ export class SysTaskController {
     if (!isEmpty(task)) {
       await this.taskService.once(task);
     } else {
-      throw new HttpException(10020);
+      throw new ApiException(10020);
     }
   }
 
@@ -77,7 +77,7 @@ export class SysTaskController {
     if (!isEmpty(task)) {
       await this.taskService.stop(task);
     } else {
-      throw new HttpException(10020);
+      throw new ApiException(10020);
     }
   }
 
@@ -88,7 +88,7 @@ export class SysTaskController {
     if (!isEmpty(task)) {
       await this.taskService.start(task);
     } else {
-      throw new HttpException(10020);
+      throw new ApiException(10020);
     }
   }
 
@@ -99,7 +99,7 @@ export class SysTaskController {
     if (!isEmpty(task)) {
       await this.taskService.delete(task);
     } else {
-      throw new HttpException(10020);
+      throw new ApiException(10020);
     }
   }
 }

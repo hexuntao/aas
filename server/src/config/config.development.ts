@@ -38,7 +38,7 @@ export default {
     enable: true,
     title: 'api文档',
     desc: 'api文档描述',
-    path: '/api',
+    path: process.env.DOCS_PREFIX,
   },
   /** redis config */
   redis: {

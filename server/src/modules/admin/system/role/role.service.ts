@@ -1,14 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { difference, filter, includes, isEmpty, map } from 'lodash';
-import SysRoleDepartment from '../../entities/admin/sys-role-department.entity';
-import SysRoleMenu from '../../entities/admin/sys-role-menu.entity';
-import SysRole from '../../entities/admin/sys-role.entity';
-import SysUserRole from '../../entities/admin/sys-user-role.entity';
+import SysRoleDepartment from '@/common/entities/admin/sys-role-department.entity';
+import SysRoleMenu from '@/common/entities/admin/sys-role-menu.entity';
+import SysRole from '@/common/entities/admin/sys-role.entity';
+import SysUserRole from '@/common/entities/admin/sys-user-role.entity';
 import { EntityManager, In, Not, Repository } from 'typeorm';
 import { CreateRoleDto, UpdateRoleDto } from './role.dto';
 import { CreatedRoleId, RoleInfo } from './role.class';
-import { ROOT_ROLE_ID } from '../../../admin/admin.constants';
+import { ROOT_ROLE_ID } from '@/modules/admin/admin.constants';
+import { AdminWSService } from '@/modules/ws/admin-ws.service';
 
 @Injectable()
 export class SysRoleService {
@@ -22,6 +23,7 @@ export class SysRoleService {
     private userRoleRepository: Repository<SysUserRole>,
     @InjectEntityManager() private entityManager: EntityManager,
     @Inject(ROOT_ROLE_ID) private rootRoleId: number,
+    private adminWSService: AdminWSService,
   ) {}
 
   /**
@@ -171,6 +173,11 @@ export class SysRoleService {
         await manager.delete(SysRoleDepartment, realDeleteRowIds);
       }
     });
+    // 如果勾选了新的菜单或取消勾选了原有的菜单，则通知前端重新获取权限菜单
+    if ([insertMenusRowIds, deleteMenusRowIds].some((n) => n.length)) {
+      this.adminWSService.noticeUserToUpdateMenusByRoleIds([roleId]);
+    }
+
     return role;
   }
 

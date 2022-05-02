@@ -3,24 +3,21 @@ import './polyfill';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
-import { AppController } from '@/app.controller';
-import { AppService } from '@/app.service';
-
+import { BullModule } from '@nestjs/bull';
 import Configuration from '@/config/configuration';
 
-import { LoggerModule } from '@/shared/logger/logger.module';
-import { TypeORMLoggerService } from '@/shared/logger/typeorm-logger.service';
-import {
-  WinstonLogLevel,
-  LoggerModuleOptions,
-} from '@/shared/logger/logger.interface';
-import { LOGGER_MODULE_OPTIONS } from '@/shared/logger/logger.constants';
-
-import { SharedModule } from '@/shared/shared.module';
-import { WSModule } from '@/ws/ws.module';
-import { MissionModule } from '@/mission/mission.module';
 import { AdminModule } from '@/modules/admin/admin.module';
+import { SharedModule } from '@/modules/shared/shared.module';
+import { MissionModule } from '@/modules/mission/mission.module';
+import { WSModule } from '@/modules/ws/ws.module';
+import { LoggerModule } from '@/modules/logger/logger.module';
+
+import {
+  LoggerModuleOptions,
+  WinstonLogLevel,
+} from '@/modules/logger/logger.interface';
+import { TypeORMLoggerService } from '@/modules/logger/typeorm-logger.service';
+import { LOGGER_MODULE_OPTIONS } from '@/modules/logger/logger.constants';
 
 @Module({
   imports: [
@@ -54,7 +51,9 @@ import { AdminModule } from '@/modules/admin/admin.module';
       }),
       inject: [ConfigService, LOGGER_MODULE_OPTIONS],
     }),
-    // 日志模块
+    // 队列模块
+    BullModule.forRoot({}),
+    // 自定义日志模块
     LoggerModule.forRootAsync(
       {
         imports: [ConfigModule],
@@ -82,13 +81,12 @@ import { AdminModule } from '@/modules/admin/admin.module';
     ),
     // 共享模块
     SharedModule,
-    // socket模块
-    WSModule,
-    // 定时模块
+    // 定时/任务 模块
     MissionModule.forRoot(),
+    // 后台系统模块
     AdminModule,
+    // websocket 模块
+    WSModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

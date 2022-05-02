@@ -9,7 +9,7 @@ import {
 import { IQiniuConfig } from '../../admin.interface';
 import * as qiniu from 'qiniu';
 import { rs, conf, auth } from 'qiniu';
-import { UtilService } from '@/shared/services/util.service';
+import { UtilService } from '@/modules/shared/services/util.service';
 import { isEmpty } from 'lodash';
 import { SFileInfo, SFileInfoDetail, SFileList } from './manage.class';
 import { SysUserService } from '../../system/user/user.service';

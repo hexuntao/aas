@@ -1,8 +1,9 @@
-import { LoggerModuleOptions as LoggerConfigOptions } from '@/shared/logger/logger.interface';
+import { conf } from 'qiniu';
+import { LoggerModuleOptions as LoggerConfigOptions } from '@/modules/logger/logger.interface';
 import { LoggerOptions } from 'typeorm';
 
 /**
- * 用于类型提示
+ * 用于智能提示
  */
 export function defineConfig(config: IConfig): IConfig {
   return config;
@@ -31,7 +32,7 @@ export interface IConfig {
   /**
    * 七牛云配置
    */
-  // qiniu?: QiniuConfigOptions;
+  qiniu?: QiniuConfigOptions;
   /**
    * 应用级别日志配置
    */
@@ -46,6 +47,15 @@ export interface IConfig {
 
 export interface JwtConfigOptions {
   secret: string;
+}
+
+export interface QiniuConfigOptions {
+  accessKey?: string;
+  secretKey?: string;
+  bucket?: string;
+  zone?: conf.Zone;
+  domain?: string;
+  access?: string;
 }
 
 export interface RedisConfigOptions {

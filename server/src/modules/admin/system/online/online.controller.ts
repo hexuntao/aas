@@ -5,7 +5,7 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { HttpException } from '@/exceptions/http.exception';
+import { ApiException } from '@/common/exceptions/api.exception';
 import { ADMIN_PREFIX } from '../../admin.constants';
 import { IAdminUser } from '../../admin.interface';
 import { AdminUser } from '../../core/decorators/admin-user.decorator';
@@ -35,7 +35,7 @@ export class SysOnlineController {
     @AdminUser() user: IAdminUser,
   ): Promise<void> {
     if (dto.id === user.uid) {
-      throw new HttpException(10012);
+      throw new ApiException(10012);
     }
     await this.onlineService.kickUser(dto.id, user.uid);
   }

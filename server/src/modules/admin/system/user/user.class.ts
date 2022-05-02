@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import SysUser from '../../entities/admin/sys-user.entity';
+import SysUser from '@/common/entities/admin/sys-user.entity';
 
 export class AccountInfo {
   @ApiProperty()
@@ -19,6 +19,9 @@ export class AccountInfo {
 
   @ApiProperty()
   headImg: string;
+
+  @ApiProperty()
+  loginIp: string;
 }
 
 export class PageSearchUserInfo {

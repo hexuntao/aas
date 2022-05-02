@@ -1,14 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { concat, includes, isEmpty, uniq } from 'lodash';
-import { ROOT_ROLE_ID } from '../../admin.constants';
-import { HttpException } from '@/exceptions/http.exception';
-import SysMenu from '../../entities/admin/sys-menu.entity';
+import { ROOT_ROLE_ID } from '@/modules/admin/admin.constants';
+import { ApiException } from '@/common/exceptions/api.exception';
+import SysMenu from '@/common/entities/admin/sys-menu.entity';
 import { IsNull, Not, Repository } from 'typeorm';
 import { SysRoleService } from '../role/role.service';
 import { MenuItemAndParentInfoResult } from './menu.class';
 import { CreateMenuDto } from './menu.dto';
-import { RedisService } from '@/shared/services/redis.service';
+import { RedisService } from '@/modules/shared/services/redis.service';
+import { AdminWSService } from '@/modules/ws/admin-ws.service';
 
 @Injectable()
 export class SysMenuService {
@@ -17,6 +18,7 @@ export class SysMenuService {
     private redisService: RedisService,
     @Inject(ROOT_ROLE_ID) private rootRoleId: number,
     private roleService: SysRoleService,
+    private adminWSService: AdminWSService,
   ) {}
 
   /**
@@ -31,6 +33,7 @@ export class SysMenuService {
    */
   async save(menu: CreateMenuDto & { id?: number }): Promise<void> {
     await this.menuRepository.save(menu);
+    this.adminWSService.noticeUserToUpdateMenusByRoleIds([this.rootRoleId]);
   }
 
   /**
@@ -61,19 +64,34 @@ export class SysMenuService {
   /**
    * 检查菜单创建规则是否符合
    */
-  async check(dto: CreateMenuDto): Promise<void | never> {
+  async check(dto: CreateMenuDto & { menuId?: number }): Promise<void | never> {
     if (dto.type === 2 && dto.parentId === -1) {
       // 无法直接创建权限，必须有ParentId
-      throw new HttpException(10005);
+      throw new ApiException(10005);
     }
     if (dto.type === 1 && dto.parentId !== -1) {
       const parent = await this.getMenuItemInfo(dto.parentId);
       if (isEmpty(parent)) {
-        throw new HttpException(10014);
+        throw new ApiException(10014);
       }
       if (parent && parent.type === 1) {
         // 当前新增为菜单但父节点也为菜单时为非法操作
-        throw new HttpException(10006);
+        throw new ApiException(10006);
+      }
+    }
+    //判断一级菜单路由是否重复
+    if (Object.is(dto.parentId, -1) && Object.is(dto.type, 0)) {
+      // 查找所有一级菜单
+      const rootMenus = await this.menuRepository.find({
+        parentId: null,
+        id: Not(dto.menuId),
+      });
+      const path = dto.router.split('/').filter(Boolean).join('/');
+      const pathReg = new RegExp(`^/?${path}/?$`);
+      const isExist = rootMenus.some((n) => pathReg.test(n.router));
+      if (isExist) {
+        // 一级菜单路由不能重复
+        throw new ApiException(10004);
       }
     }
   }
@@ -170,6 +188,7 @@ export class SysMenuService {
    */
   async deleteMenuItem(mids: number[]): Promise<void> {
     await this.menuRepository.delete(mids);
+    this.adminWSService.noticeUserToUpdateMenusByMenuIds(mids);
   }
 
   /**

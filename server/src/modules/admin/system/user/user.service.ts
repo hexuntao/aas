@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { findIndex, isEmpty } from 'lodash';
-import { HttpException } from '@/exceptions/http.exception';
-import SysDepartment from '../../entities/admin/sys-department.entity';
-import SysUserRole from '../../entities/admin/sys-user-role.entity';
-import SysUser from '../../entities/admin/sys-user.entity';
-import { UtilService } from '@/shared/services/util.service';
+import { ApiException } from '@/common/exceptions/api.exception';
+import SysDepartment from '@/common/entities/admin/sys-department.entity';
+import SysUserRole from '@/common/entities/admin/sys-user-role.entity';
+import SysUser from '@/common/entities/admin/sys-user.entity';
+import { UtilService } from '@/modules/shared/services/util.service';
 import { EntityManager, In, Not, Repository } from 'typeorm';
 import {
   CreateUserDto,
@@ -14,10 +14,10 @@ import {
   UpdateUserInfoDto,
 } from './user.dto';
 import { AccountInfo, PageSearchUserInfo } from './user.class';
-import { ROOT_ROLE_ID } from '../../admin.constants';
-import { RedisService } from '@/shared/services/redis.service';
+import { ROOT_ROLE_ID } from '@/modules/admin/admin.constants';
+import { RedisService } from '@/modules/shared/services/redis.service';
 import { SysParamConfigService } from '../param-config/param-config.service';
-import { SYS_USER_INITPASSWORD } from '@/contants/param-config.contants';
+import { SYS_USER_INITPASSWORD } from '@/common/contants/param-config.contants';
 
 @Injectable()
 export class SysUserService {
@@ -47,11 +47,12 @@ export class SysUserService {
   /**
    * 获取用户信息
    * @param uid user id
+   * @param ip login ip
    */
-  async getAccountInfo(uid: number): Promise<AccountInfo> {
+  async getAccountInfo(uid: number, ip?: string): Promise<AccountInfo> {
     const user: SysUser = await this.userRepository.findOne({ id: uid });
     if (isEmpty(user)) {
-      throw new HttpException(10017);
+      throw new ApiException(10017);
     }
     return {
       name: user.name,
@@ -60,6 +61,7 @@ export class SysUserService {
       phone: user.phone,
       remark: user.remark,
       headImg: user.headImg,
+      loginIp: ip,
     };
   }
 
@@ -76,12 +78,12 @@ export class SysUserService {
   async updatePassword(uid: number, dto: UpdatePasswordDto): Promise<void> {
     const user = await this.userRepository.findOne({ id: uid });
     if (isEmpty(user)) {
-      throw new HttpException(10017);
+      throw new ApiException(10017);
     }
     const comparePassword = this.util.md5(`${dto.originPassword}${user.psalt}`);
     // 原密码不一致，不允许更改
     if (user.password !== comparePassword) {
-      throw new HttpException(10011);
+      throw new ApiException(10011);
     }
     const password = this.util.md5(`${dto.newPassword}${user.psalt}`);
     await this.userRepository.update({ id: uid }, { password });
@@ -94,7 +96,7 @@ export class SysUserService {
   async forceUpdatePassword(uid: number, password: string): Promise<void> {
     const user = await this.userRepository.findOne({ id: uid });
     if (isEmpty(user)) {
-      throw new HttpException(10017);
+      throw new ApiException(10017);
     }
     const newPassword = this.util.md5(`${password}${user.psalt}`);
     await this.userRepository.update({ id: uid }, { password: newPassword });
@@ -111,7 +113,7 @@ export class SysUserService {
       username: param.username,
     });
     if (!isEmpty(exists)) {
-      throw new HttpException(10001);
+      throw new ApiException(10001);
     }
     // 所有用户初始密码为123456
     await this.entityManager.transaction(async (manager) => {
@@ -189,13 +191,13 @@ export class SysUserService {
   ): Promise<SysUser & { roles: number[]; departmentName: string }> {
     const user: any = await this.userRepository.findOne(id);
     if (isEmpty(user)) {
-      throw new HttpException(10017);
+      throw new ApiException(10017);
     }
     const departmentRow = await this.departmentRepository.findOne({
       id: user.departmentId,
     });
     if (isEmpty(departmentRow)) {
-      throw new HttpException(10018);
+      throw new ApiException(10018);
     }
     const roleRows = await this.userRoleRepository.find({ userId: user.id });
     const roles = roleRows.map((e) => {

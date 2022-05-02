@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectEntityManager } from '@nestjs/typeorm';
-import { HttpException } from '@/exceptions/http.exception';
-import { AdminWSGateway } from '@/ws/admin-ws.gateway';
-import { EVENT_KICK } from '@/ws/ws.event';
+import { ApiException } from '@/common/exceptions/api.exception';
+import { AdminWSService } from '@/modules/ws/admin-ws.service';
+import { AdminWSGateway } from '@/modules/ws/admin-ws.gateway';
+import { EVENT_KICK } from '@/modules/ws/ws.event';
 import { EntityManager } from 'typeorm';
 import { UAParser } from 'ua-parser-js';
 import { SysUserService } from '../user/user.service';
 import { OnlineUserInfo } from './online.class';
-import { RemoteSocket } from 'socket.io';
 
 @Injectable()
 export class SysOnlineService {
@@ -16,6 +16,7 @@ export class SysOnlineService {
     @InjectEntityManager() private entityManager: EntityManager,
     private userService: SysUserService,
     private adminWsGateWay: AdminWSGateway,
+    private adminWSService: AdminWSService,
     private jwtService: JwtService,
   ) {}
 
@@ -23,7 +24,7 @@ export class SysOnlineService {
    * 罗列在线用户列表
    */
   async listOnlineUser(currentUid: number): Promise<OnlineUserInfo[]> {
-    const onlineSockets = await this.adminWsGateWay.socketServer.fetchSockets();
+    const onlineSockets = await this.adminWSService.getOnlineSockets();
     if (!onlineSockets || onlineSockets.length <= 0) {
       return [];
     }
@@ -41,12 +42,12 @@ export class SysOnlineService {
     const rootUserId = await this.userService.findRootUserId();
     const currentUserInfo = await this.userService.getAccountInfo(currentUid);
     if (uid === rootUserId) {
-      throw new HttpException(10013);
+      throw new ApiException(10013);
     }
     // reset redis keys
     await this.userService.forbidden(uid);
     // socket emit
-    const socket = await this.findSocketIdByUid(uid);
+    const socket = await this.adminWSService.findSocketIdByUid(uid);
     if (socket) {
       // socket emit event
       this.adminWsGateWay.socketServer
@@ -55,19 +56,6 @@ export class SysOnlineService {
       // close socket
       socket.disconnect();
     }
-  }
-
-  /**
-   * 根据uid查找socketid
-   */
-  async findSocketIdByUid(uid: number): Promise<RemoteSocket<any, any>> {
-    const onlineSockets = await this.adminWsGateWay.socketServer.fetchSockets();
-    const socket = onlineSockets.find((socket) => {
-      const token = socket.handshake.query?.token as string;
-      const tokenUid = this.jwtService.verify(token).uid;
-      return tokenUid === uid;
-    });
-    return socket;
   }
 
   /**

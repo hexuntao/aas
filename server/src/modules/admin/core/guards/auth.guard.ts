@@ -3,14 +3,14 @@ import { Reflector } from '@nestjs/core';
 import { FastifyRequest } from 'fastify';
 import { isEmpty } from 'lodash';
 import { JwtService } from '@nestjs/jwt';
-import { HttpException } from '@/exceptions/http.exception';
+import { ApiException } from '@/common/exceptions/api.exception';
 import {
   ADMIN_PREFIX,
   ADMIN_USER,
   PERMISSION_OPTIONAL_KEY_METADATA,
   AUTHORIZE_KEY_METADATA,
-} from '../../admin.constants';
-import { LoginService } from '../../login/login.service';
+} from '@/modules/admin/admin.constants';
+import { LoginService } from '@/modules/admin/login/login.service';
 
 /**
  * admin perm check guard
@@ -37,31 +37,31 @@ export class AuthGuard implements CanActivate {
     const path = url.split('?')[0];
     const token = request.headers['authorization'] as string;
     if (isEmpty(token)) {
-      throw new HttpException(11001);
+      throw new ApiException(11001);
     }
     try {
       // 挂载对象到当前请求上
       request[ADMIN_USER] = this.jwtService.verify(token);
     } catch (e) {
       // 无法通过token校验
-      throw new HttpException(11001);
+      throw new ApiException(11001);
     }
     if (isEmpty(request[ADMIN_USER])) {
-      throw new HttpException(11001);
+      throw new ApiException(11001);
     }
     const pv = await this.loginService.getRedisPasswordVersionById(
       request[ADMIN_USER].uid,
     );
     if (pv !== `${request[ADMIN_USER].pv}`) {
       // 密码版本不一致，登录期间已更改过密码
-      throw new HttpException(11002);
+      throw new ApiException(11002);
     }
     const redisToken = await this.loginService.getRedisTokenById(
       request[ADMIN_USER].uid,
     );
     if (token !== redisToken) {
       // 与redis保存不一致
-      throw new HttpException(11002);
+      throw new ApiException(11002);
     }
     // 注册该注解，Api则放行检测
     const notNeedPerm = this.reflector.get<boolean>(
@@ -77,7 +77,7 @@ export class AuthGuard implements CanActivate {
     );
     // 安全判空
     if (isEmpty(perms)) {
-      throw new HttpException(11001);
+      throw new ApiException(11001);
     }
     // 将sys:admin:user等转换成sys/admin/user
     const permArray: string[] = (JSON.parse(perms) as string[]).map((e) => {
@@ -85,7 +85,7 @@ export class AuthGuard implements CanActivate {
     });
     // 遍历权限是否包含该url，不包含则无访问权限
     if (!permArray.includes(path.replace(`/${ADMIN_PREFIX}/`, ''))) {
-      throw new HttpException(11003);
+      throw new ApiException(11003);
     }
     // pass
     return true;

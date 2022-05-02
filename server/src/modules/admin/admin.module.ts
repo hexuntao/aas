@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD, RouterModule } from '@nestjs/core';
-
+import { AccountModule } from './account/account.module';
 import { ADMIN_PREFIX } from './admin.constants';
 import { AuthGuard } from './core/guards/auth.guard';
-
-import { AccountModule } from './account/account.module';
 import { LoginModule } from './login/login.module';
 import { NetdiskModule } from './netdisk/netdisk.module';
 import { SystemModule } from './system/system.module';

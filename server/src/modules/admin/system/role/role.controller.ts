@@ -5,10 +5,10 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { ADMIN_PREFIX } from '../../../admin/admin.constants';
-import { PageOptionsDto } from '@/dto/page.dto';
-import { PageResult } from '@/class/result.class';
-import SysRole from '../../entities/admin/sys-role.entity';
+import { ADMIN_PREFIX } from '@/modules/admin/admin.constants';
+import { PageOptionsDto } from '@/common/dto/page.dto';
+import { PageResult } from '@/common/class/result.class';
+import SysRole from '@/common/entities/admin/sys-role.entity';
 import { SysRoleService } from './role.service';
 import {
   CreateRoleDto,
@@ -16,7 +16,7 @@ import {
   InfoRoleDto,
   UpdateRoleDto,
 } from './role.dto';
-import { HttpException } from '@/exceptions/http.exception';
+import { ApiException } from '@/common/exceptions/api.exception';
 import { AdminUser } from '../../core/decorators/admin-user.decorator';
 import { IAdminUser } from '../../admin.interface';
 import { RoleInfo } from './role.class';
@@ -59,7 +59,7 @@ export class SysRoleController {
   async delete(@Body() dto: DeleteRoleDto): Promise<void> {
     const count = await this.roleService.countUserIdByRole(dto.roleIds);
     if (count > 0) {
-      throw new HttpException(10008);
+      throw new ApiException(10008);
     }
     await this.roleService.delete(dto.roleIds);
     await this.menuService.refreshOnlineUserPerms();

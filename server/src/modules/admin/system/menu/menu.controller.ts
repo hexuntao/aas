@@ -9,9 +9,9 @@ import { flattenDeep } from 'lodash';
 import {
   ADMIN_PREFIX,
   FORBIDDEN_OP_MENU_ID_INDEX,
-} from '../../admin.constants';
-import { HttpException } from '@/exceptions/http.exception';
-import SysMenu from '../../entities/admin/sys-menu.entity';
+} from '@/modules/admin/admin.constants';
+import { ApiException } from '@/common/exceptions/api.exception';
+import SysMenu from '@/common/entities/admin/sys-menu.entity';
 import { IAdminUser } from '../../admin.interface';
 import { AdminUser } from '../../core/decorators/admin-user.decorator';
 import { MenuItemAndParentInfoResult } from './menu.class';
@@ -51,18 +51,20 @@ export class SysMenuController {
     }
   }
 
-  @ApiOperation({ summary: '新增菜单或权限' })
+  @ApiOperation({ summary: '更新菜单或权限' })
   @Post('update')
   async update(@Body() dto: UpdateMenuDto): Promise<void> {
+    //
     if (dto.menuId <= FORBIDDEN_OP_MENU_ID_INDEX) {
       // 系统内置功能不提供删除
-      throw new HttpException(10016);
+      throw new ApiException(10016);
     }
     // check
     await this.menuService.check(dto);
     if (dto.parentId === -1) {
       dto.parentId = null;
     }
+
     const insertData: CreateMenuDto & { id: number } = {
       ...dto,
       id: dto.menuId,
@@ -80,7 +82,7 @@ export class SysMenuController {
     // 68为内置init.sql中插入最后的索引编号
     if (dto.menuId <= FORBIDDEN_OP_MENU_ID_INDEX) {
       // 系统内置功能不提供删除
-      throw new HttpException(10016);
+      throw new ApiException(10016);
     }
     // 如果有子目录，一并删除
     const childMenus = await this.menuService.findChildMenus(dto.menuId);

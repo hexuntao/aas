@@ -1,6 +1,6 @@
 import { FactoryProvider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { QINIU_CONFIG } from '../../admin.constants';
+import { QINIU_CONFIG } from '@/modules/admin/admin.constants';
 import { IQiniuConfig } from '../../admin.interface';
 
 /**

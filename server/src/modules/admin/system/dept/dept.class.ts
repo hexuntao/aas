@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import SysDepartment from '../../entities/admin/sys-department.entity';
+import SysDepartment from '@/common/entities/admin/sys-department.entity';
 
 export class DeptDetailInfo {
   @ApiProperty({ description: '当前查询的部门' })

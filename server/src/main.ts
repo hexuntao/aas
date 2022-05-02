@@ -1,26 +1,26 @@
 import 'dotenv/config';
-import { NestFactory, Reflector } from '@nestjs/core';
 import {
   HttpStatus,
   Logger,
   UnprocessableEntityException,
   ValidationPipe,
 } from '@nestjs/common';
-import { ValidationError } from 'class-validator';
-import { flatten } from 'lodash';
+import { NestFactory, Reflector } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+import { ValidationError } from 'class-validator';
+import { flatten } from 'lodash';
 
 import { AppModule } from './app.module';
+
+import { ApiExceptionFilter } from '@/common/filters/api-exception.filter';
+import { ApiTransformInterceptor } from '@/common/interceptors/api-transform.interceptor';
+import { LoggerService } from '@/modules/logger/logger.service';
+
 import { setupSwagger } from './setup-swagger';
-
-import { LoggerService } from '@/shared/logger/logger.service';
-
-import { HttpExceptionFilter } from '@/filters/http-exception.filter';
-import { TransformInterceptor } from '@/interceptors/transform.interceptor';
 
 const PORT = process.env.PORT;
 
@@ -36,10 +36,10 @@ async function bootstrap() {
   // 跨源资源共享
   app.enableCors();
 
-  // 日志 logger
+  // 自定义日志 logger
   app.useLogger(app.get(LoggerService));
 
-  // 管道验证器
+  // 管道 数据参数验证器
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -58,18 +58,19 @@ async function bootstrap() {
     }),
   );
 
-  // 过滤器
-  app.useGlobalFilters(new HttpExceptionFilter(app.get(LoggerService)));
+  // http 过滤器
+  app.useGlobalFilters(new ApiExceptionFilter(app.get(LoggerService)));
 
-  // 拦截器
-  app.useGlobalInterceptors(new TransformInterceptor(new Reflector()));
+  // http 拦截器
+  app.useGlobalInterceptors(new ApiTransformInterceptor(new Reflector()));
 
-  // socket
+  // websocket 通信
   app.useWebSocketAdapter(new IoAdapter());
 
   // swagger
   setupSwagger(app);
 
+  // 启动
   await app.listen(PORT);
 }
 

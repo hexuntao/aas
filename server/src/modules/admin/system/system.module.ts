@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import {
   ROOT_ROLE_ID,
@@ -8,17 +9,17 @@ import {
   SYS_TASK_QUEUE_PREFIX,
 } from '@/modules/admin/admin.constants';
 
-import SysDepartment from '../entities/admin/sys-department.entity';
-import SysLoginLog from '../entities/admin/sys-login-log.entity';
-import SysMenu from '../entities/admin/sys-menu.entity';
-import SysRoleDepartment from '../entities/admin/sys-role-department.entity';
-import SysRoleMenu from '../entities/admin/sys-role-menu.entity';
-import SysRole from '../entities/admin/sys-role.entity';
-import SysTaskLog from '../entities/admin/sys-task-log.entity';
-import SysTask from '../entities/admin/sys-task.entity';
-import SysUserRole from '../entities/admin/sys-user-role.entity';
-import SysUser from '../entities/admin/sys-user.entity';
-import SysConfig from '../entities/admin/sys-config.entity';
+import SysDepartment from '@/common/entities/admin/sys-department.entity';
+import SysLoginLog from '@/common/entities/admin/sys-login-log.entity';
+import SysMenu from '@/common/entities/admin/sys-menu.entity';
+import SysRoleDepartment from '@/common/entities/admin/sys-role-department.entity';
+import SysRoleMenu from '@/common/entities/admin/sys-role-menu.entity';
+import SysRole from '@/common/entities/admin/sys-role.entity';
+import SysTaskLog from '@/common/entities/admin/sys-task-log.entity';
+import SysTask from '@/common/entities/admin/sys-task.entity';
+import SysUserRole from '@/common/entities/admin/sys-user-role.entity';
+import SysUser from '@/common/entities/admin/sys-user.entity';
+import SysConfig from '@/common/entities/admin/sys-config.entity';
 
 import { rootRoleIdProvider } from '../core/provider/root-role-id.provider';
 import { SysDeptController } from './dept/dept.controller';
@@ -34,7 +35,6 @@ import { SysUserService } from './user/user.service';
 
 import { SysTaskController } from './task/task.controller';
 import { SysTaskService } from './task/task.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SysTaskConsumer } from './task/task.processor';
 import { SysOnlineController } from './online/online.controller';
 import { SysOnlineService } from './online/online.service';
@@ -44,8 +44,7 @@ import { SysParamConfigService } from './param-config/param-config.service';
 import { SysServeController } from './serve/serve.controller';
 import { SysServeService } from './serve/serve.service';
 
-import { WSModule } from '@/ws/ws.module';
-
+import { WSModule } from '@/modules/ws/ws.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -56,6 +55,7 @@ import { WSModule } from '@/ws/ws.module';
       SysRoleMenu,
       SysRole,
       SysRoleDepartment,
+      SysUserRole,
       SysLoginLog,
       SysTask,
       SysTaskLog,

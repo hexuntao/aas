@@ -16,7 +16,7 @@ import {
   RenameDto,
 } from './manage.dto';
 import { SFileInfoDetail, SFileList, UploadToken } from './manage.class';
-import { HttpException } from '@/exceptions/http.exception';
+import { ApiException } from '@/common/exceptions/api.exception';
 import { AdminUser } from '../../core/decorators/admin-user.decorator';
 import { IAdminUser } from '../../admin.interface';
 import { ADMIN_PREFIX } from '../../admin.constants';
@@ -41,7 +41,7 @@ export class NetDiskManageController {
       `${dto.path}${dto.dirName}/`,
     );
     if (result) {
-      throw new HttpException(20001);
+      throw new ApiException(20001);
     }
     await this.manageService.createDir(`${dto.path}${dto.dirName}`);
   }
@@ -84,7 +84,7 @@ export class NetDiskManageController {
       `${dto.path}${dto.toName}${dto.type === 'dir' ? '/' : ''}`,
     );
     if (result) {
-      throw new HttpException(20001);
+      throw new ApiException(20001);
     }
     if (dto.type === 'file') {
       await this.manageService.renameFile(dto.path, dto.name, dto.toName);
@@ -103,7 +103,7 @@ export class NetDiskManageController {
   @Post('cut')
   async cut(@Body() dto: FileOpDto): Promise<void> {
     if (dto.originPath === dto.toPath) {
-      throw new HttpException(20002);
+      throw new ApiException(20002);
     }
     await this.manageService.moveMultiFileOrDir(
       dto.files,

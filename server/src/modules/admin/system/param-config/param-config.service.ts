@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HttpException } from '@/exceptions/http.exception';
-import SysConfig from '../../entities/admin/sys-config.entity';
+import { ApiException } from '@/common/exceptions/api.exception';
+import SysConfig from '@/common/entities/admin/sys-config.entity';
 import { Repository } from 'typeorm';
 import { CreateParamConfigDto, UpdateParamConfigDto } from './param-config.dto';
 
@@ -66,7 +66,7 @@ export class SysParamConfigService {
   async isExistKey(key: string): Promise<void | never> {
     const result = await this.configRepository.findOne({ key });
     if (result) {
-      throw new HttpException(10021);
+      throw new ApiException(10021);
     }
   }
 

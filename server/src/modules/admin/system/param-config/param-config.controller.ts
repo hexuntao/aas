@@ -5,9 +5,9 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { PageResult } from '@/class/result.class';
-import { PageOptionsDto } from '@/dto/page.dto';
-import SysConfig from '../../entities/admin/sys-config.entity';
+import { PageResult } from '@/common/class/result.class';
+import { PageOptionsDto } from '@/common/dto/page.dto';
+import SysConfig from '@/common/entities/admin/sys-config.entity';
 import { ADMIN_PREFIX } from '../../admin.constants';
 import {
   CreateParamConfigDto,

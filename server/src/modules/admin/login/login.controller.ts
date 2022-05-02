@@ -14,8 +14,7 @@ import { ImageCaptchaDto, LoginInfoDto } from './login.dto';
 import { ImageCaptcha, LoginToken } from './login.class';
 import { LoginService } from './login.service';
 import { LogDisabled } from '../core/decorators/log-disabled.decorator';
-
-import { UtilService } from '@/shared/services/util.service';
+import { UtilService } from '@/modules/shared/services/util.service';
 
 @ApiTags('登录模块')
 @Controller()

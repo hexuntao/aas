@@ -5,9 +5,9 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { ADMIN_PREFIX } from '../../../admin/admin.constants';
-import { HttpException } from '@/exceptions/http.exception';
-import SysDepartment from '../../entities/admin/sys-department.entity';
+import { ADMIN_PREFIX } from '@/modules/admin/admin.constants';
+import { ApiException } from '@/common/exceptions/api.exception';
+import SysDepartment from '@/common/entities/admin/sys-department.entity';
 import { AdminUser } from '../../core/decorators/admin-user.decorator';
 import { DeptDetailInfo } from './dept.class';
 import {
@@ -47,19 +47,19 @@ export class SysDeptController {
       deleteDeptDto.departmentId,
     );
     if (count > 0) {
-      throw new HttpException(10009);
+      throw new ApiException(10009);
     }
     const count2 = await this.deptService.countRoleByDeptId(
       deleteDeptDto.departmentId,
     );
     if (count2 > 0) {
-      throw new HttpException(10010);
+      throw new ApiException(10010);
     }
     const count3 = await this.deptService.countChildDept(
       deleteDeptDto.departmentId,
     );
     if (count3 > 0) {
-      throw new HttpException(10015);
+      throw new ApiException(10015);
     }
     await this.deptService.delete(deleteDeptDto.departmentId);
   }

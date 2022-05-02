@@ -5,8 +5,8 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { PageResult } from '@/class/result.class';
-import { PageOptionsDto } from '@/dto/page.dto';
+import { PageResult } from '@/common/class/result.class';
+import { PageOptionsDto } from '@/common/dto/page.dto';
 import { ADMIN_PREFIX } from '../../admin.constants';
 import { LogDisabled } from '../../core/decorators/log-disabled.decorator';
 import { LoginLogInfo, TaskLogInfo } from './log.class';

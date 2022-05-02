@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { includes, isEmpty } from 'lodash';
-import { ROOT_ROLE_ID } from '../../../admin/admin.constants';
-import { HttpException } from '@/exceptions/http.exception';
-import SysDepartment from '../../entities/admin/sys-department.entity';
-import SysRoleDepartment from '../../entities/admin/sys-role-department.entity';
-import SysUser from '../../entities/admin/sys-user.entity';
+import { ROOT_ROLE_ID } from '@/modules/admin/admin.constants';
+import { ApiException } from '@/common/exceptions/api.exception';
+import SysDepartment from '@/common/entities/admin/sys-department.entity';
+import SysRoleDepartment from '@/common/entities/admin/sys-role-department.entity';
+import SysUser from '@/common/entities/admin/sys-user.entity';
 import { EntityManager, In, Repository } from 'typeorm';
 import { SysRoleService } from '../role/role.service';
 import { DeptDetailInfo } from './dept.class';
@@ -37,7 +37,7 @@ export class SysDeptService {
   async info(id: number): Promise<DeptDetailInfo> {
     const department = await this.deptRepositoty.findOne({ id });
     if (isEmpty(department)) {
-      throw new HttpException(10019);
+      throw new ApiException(10019);
     }
     let parentDepartment = null;
     if (department.parentId) {

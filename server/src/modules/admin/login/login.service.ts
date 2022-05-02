@@ -4,13 +4,12 @@ import { ImageCaptcha, PermMenuInfo } from './login.class';
 import { isEmpty } from 'lodash';
 import { ImageCaptchaDto } from './login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { UtilService } from '@/modules/shared/services/util.service';
 import { SysMenuService } from '../system/menu/menu.service';
 import { SysUserService } from '../system/user/user.service';
+import { ApiException } from '@/common/exceptions/api.exception';
 import { SysLogService } from '../system/log/log.service';
-
-import { HttpException } from '@/exceptions/http.exception';
-import { RedisService } from '@/shared/services/redis.service';
-import { UtilService } from '@/shared/services/util.service';
+import { RedisService } from '@/modules/shared/services/redis.service';
 
 @Injectable()
 export class LoginService {
@@ -58,7 +57,7 @@ export class LoginService {
       .getRedis()
       .get(`admin:captcha:img:${id}`);
     if (isEmpty(result) || code.toLowerCase() !== result.toLowerCase()) {
-      throw new HttpException(10002);
+      throw new ApiException(10002);
     }
     // 校验成功后移除验证码
     await this.redisService.getRedis().del(`admin:captcha:img:${id}`);
@@ -76,13 +75,20 @@ export class LoginService {
   ): Promise<string> {
     const user = await this.userService.findUserByUserName(username);
     if (isEmpty(user)) {
-      throw new HttpException(10003);
+      throw new ApiException(10003);
     }
     const comparePassword = this.util.md5(`${password}${user.psalt}`);
     if (user.password !== comparePassword) {
-      throw new HttpException(10003);
+      throw new ApiException(10003);
     }
     const perms = await this.menuService.getPerms(user.id);
+    // TODO 系统管理员开放多点登录
+    if (user.id === 1) {
+      const oldToken = await this.getRedisTokenById(user.id);
+      if (oldToken) {
+        return oldToken;
+      }
+    }
     const jwtSign = this.jwtService.sign(
       {
         uid: parseInt(user.id.toString()),

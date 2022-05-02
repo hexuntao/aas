@@ -5,7 +5,7 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { PageResult } from '@/class/result.class';
+import { PageResult } from '@/common/class/result.class';
 import { ADMIN_PREFIX } from '../../admin.constants';
 import { IAdminUser } from '../../admin.interface';
 import { AdminUser } from '../../core/decorators/admin-user.decorator';
