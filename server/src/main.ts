@@ -12,6 +12,8 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { IoAdapter } from '@nestjs/platform-socket.io';
+
 import { AppModule } from './app.module';
 import { setupSwagger } from './setup-swagger';
 
@@ -62,6 +64,9 @@ async function bootstrap() {
   // 拦截器
   app.useGlobalInterceptors(new TransformInterceptor(new Reflector()));
 
+  // socket
+  app.useWebSocketAdapter(new IoAdapter());
+
   // swagger
   setupSwagger(app);
 
@@ -70,6 +75,9 @@ async function bootstrap() {
 
 bootstrap().then(() => {
   Logger.log(`API服务已经启动: http://localhost:${PORT}`);
+  Logger.log(
+    `WS服务已经启动: http://localhost:${process.env.WS_PORT}${process.env.WS_PATH}`,
+  );
   Logger.log(
     `API文档已生成: http://localhost:${PORT}/${process.env.DOCS_PREFIX}/`,
   );

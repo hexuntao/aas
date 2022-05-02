@@ -16,6 +16,7 @@ import {
 import { LOGGER_MODULE_OPTIONS } from '@/shared/logger/logger.constants';
 
 import { SharedModule } from '@/shared/shared.module';
+import { WSModule } from '@/ws/ws.module';
 
 @Module({
   imports: [
@@ -77,6 +78,8 @@ import { SharedModule } from '@/shared/shared.module';
     ),
     // 共享模块
     SharedModule,
+    // socket模块
+    WSModule,
   ],
   controllers: [AppController],
   providers: [AppService],
