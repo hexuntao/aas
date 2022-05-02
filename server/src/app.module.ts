@@ -1,3 +1,5 @@
+import './polyfill';
+
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -17,6 +19,7 @@ import { LOGGER_MODULE_OPTIONS } from '@/shared/logger/logger.constants';
 
 import { SharedModule } from '@/shared/shared.module';
 import { WSModule } from '@/ws/ws.module';
+import { MissionModule } from '@/mission/mission.module';
 
 @Module({
   imports: [
@@ -80,6 +83,8 @@ import { WSModule } from '@/ws/ws.module';
     SharedModule,
     // socket模块
     WSModule,
+    // 定时模块
+    MissionModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

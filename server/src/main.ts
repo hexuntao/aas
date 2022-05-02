@@ -79,6 +79,6 @@ bootstrap().then(() => {
     `WS服务已经启动: http://localhost:${process.env.WS_PORT}${process.env.WS_PATH}`,
   );
   Logger.log(
-    `API文档已生成: http://localhost:${PORT}/${process.env.DOCS_PREFIX}/`,
+    `API文档已生成: http://localhost:${PORT}${process.env.DOCS_PREFIX}`,
   );
 });
