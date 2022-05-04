@@ -13,6 +13,11 @@ export default {
   'menu.system.role': '角色列表',
   'menu.system.menu': '菜单列表',
 
+  'menu.permission': '权限管理',
+  'menu.permission.user': '用户列表',
+  'menu.permission.role': '角色列表',
+  'menu.permission.menu': '菜单列表',
+
   'navbar.docs': '文档中心',
   'navbar.action.locale': '切换为中文',
   ...localeSettings,

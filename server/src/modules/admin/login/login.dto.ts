@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
@@ -47,7 +48,8 @@ export class LoginInfoDto {
 
   @ApiProperty({ description: '用户输入的验证码' })
   @IsString()
-  @MinLength(4)
-  @MaxLength(4)
+  @IsNotEmpty({ message: '不能为空' })
+  @MinLength(4, { message: '4位数' })
+  @MaxLength(4, { message: '4位数' })
   verifyCode: string;
 }

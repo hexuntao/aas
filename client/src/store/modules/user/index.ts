@@ -1,10 +1,6 @@
 import { defineStore } from 'pinia';
-import {
-  login as userLogin,
-  logout as userLogout,
-  getUserInfo,
-  LoginData,
-} from '@/api/user';
+import { login as userLogin } from '@/api/login';
+import { getUserInfo, LoginData } from '@/api/user';
 import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
 import { UserState } from './types';
@@ -52,14 +48,13 @@ const useUserStore = defineStore('user', {
       this.$reset();
     },
 
-    // Get user's information
+    // 获取用户信息
     async info() {
       const res = await getUserInfo();
-
       this.setInfo(res.data);
     },
 
-    // Login
+    // 登录
     async login(loginForm: LoginData) {
       try {
         const res = await userLogin(loginForm);
@@ -70,9 +65,9 @@ const useUserStore = defineStore('user', {
       }
     },
 
-    // Logout
+    // 退出登录
     async logout() {
-      await userLogout();
+      // await userLogout();
 
       this.resetInfo();
       clearToken();

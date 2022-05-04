@@ -1,8 +1,6 @@
 <template>
   <div class="login-form-wrapper">
-    <div class="login-form-title">{{ $t('login.form.title') }}</div>
-    <div class="login-form-sub-title">{{ $t('login.form.title') }}</div>
-    <div class="login-form-error-msg">{{ errorMessage }}</div>
+    <div class="login-form-title">登录</div>
     <a-form
       ref="loginForm"
       :model="userInfo"
@@ -12,13 +10,14 @@
     >
       <a-form-item
         field="username"
-        :rules="[{ required: true, message: $t('login.form.userName.errMsg') }]"
+        :rules="[{ required: true, message: '请输入用户名' }]"
         :validate-trigger="['change', 'blur']"
         hide-label
       >
         <a-input
           v-model="userInfo.username"
-          :placeholder="$t('login.form.userName.placeholder')"
+          placeholder="请输入用户名"
+          allow-clear
         >
           <template #prefix>
             <icon-user />
@@ -27,19 +26,43 @@
       </a-form-item>
       <a-form-item
         field="password"
-        :rules="[{ required: true, message: $t('login.form.password.errMsg') }]"
+        :rules="[{ required: true, message: '请输入用户名' }]"
         :validate-trigger="['change', 'blur']"
         hide-label
       >
         <a-input-password
           v-model="userInfo.password"
-          :placeholder="$t('login.form.password.placeholder')"
+          placeholder="请输入用户名"
           allow-clear
         >
           <template #prefix>
             <icon-lock />
           </template>
         </a-input-password>
+      </a-form-item>
+      <a-form-item
+        field="verifyCode"
+        :rules="[{ required: true, message: '请输入图形验证码' }]"
+        :validate-trigger="['change', 'blur']"
+        hide-label
+      >
+        <a-input
+          v-model="userInfo.verifyCode"
+          placeholder="请输入图形验证码"
+          allow-clear
+          :max-length="4"
+        >
+          <template #prefix>
+            <icon-safe />
+          </template>
+          <template #suffix>
+            <a-image
+              :preview="false"
+              height="32"
+              :src="loginConfig.captchaImgSrc"
+            />
+          </template>
+        </a-input>
       </a-form-item>
       <a-space :size="16" direction="vertical">
         <div class="login-form-password-actions">
@@ -48,15 +71,11 @@
             :model-value="loginConfig.rememberPassword"
             @change="setRememberPassword"
           >
-            {{ $t('login.form.rememberPassword') }}
+            记住密码
           </a-checkbox>
-          <a-link>{{ $t('login.form.forgetPassword') }}</a-link>
         </div>
         <a-button type="primary" html-type="submit" long :loading="loading">
-          {{ $t('login.form.login') }}
-        </a-button>
-        <a-button type="text" long class="login-form-register-btn">
-          {{ $t('login.form.register') }}
+          登录
         </a-button>
       </a-space>
     </a-form>
@@ -64,31 +83,43 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive } from 'vue';
+  import { reactive } from 'vue';
   import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
-  import { useI18n } from 'vue-i18n';
   import { useStorage } from '@vueuse/core';
   import { useUserStore } from '@/store';
   import useLoading from '@/hooks/loading';
   import { LoginData } from '@/api/user';
+  import { getImageCaptcha } from '@/api/login';
 
   const router = useRouter();
-  const { t } = useI18n();
-  const errorMessage = ref('');
+  // const errorMessage = ref('');
   const { loading, setLoading } = useLoading();
   const userStore = useUserStore();
 
   const loginConfig = useStorage('login-config', {
     rememberPassword: true,
-    username: 'admin', // 演示默认值
-    password: 'admin', // demo default value
+    username: 'rootadmin',
+    password: '123456',
+    captchaId: '',
+    verifyCode: '',
+    captchaImgSrc: '',
   });
+
   const userInfo = reactive({
     username: loginConfig.value.username,
     password: loginConfig.value.password,
+    captchaId: loginConfig.value.captchaId,
+    verifyCode: loginConfig.value.verifyCode,
   });
+
+  const setCaptcha = async () => {
+    const { data } = await getImageCaptcha();
+    loginConfig.value.captchaImgSrc = data.img;
+    userInfo.captchaId = data.id;
+  };
+  setCaptcha();
 
   const handleSubmit = async ({
     errors,
@@ -108,7 +139,7 @@
             ...othersQuery,
           },
         });
-        Message.success(t('login.form.login.success'));
+        Message.success('登录成功');
         const { rememberPassword } = loginConfig.value;
         const { username, password } = values;
         // 实际生产环境需要进行加密存储。
@@ -116,13 +147,13 @@
         loginConfig.value.username = rememberPassword ? username : '';
         loginConfig.value.password = rememberPassword ? password : '';
       } catch (err) {
-        errorMessage.value = (err as Error).message;
+        // errorMessage.value = (err as Error).message;
       } finally {
         setLoading(false);
       }
     }
   };
-  const setRememberPassword = (value: boolean) => {
+  const setRememberPassword = (value: any) => {
     loginConfig.value.rememberPassword = value;
   };
 </script>
