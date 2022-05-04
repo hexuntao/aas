@@ -1,25 +1,29 @@
 <template>
-  <a-config-provider :locale="locale">
-    <router-view />
-    <global-setting />
-  </a-config-provider>
+  <ConfigProvider :locale="getAntdLocale">
+    <router-view #="{ Component }">
+      <component :is="Component" />
+    </router-view>
+    <LockScreen />
+  </ConfigProvider>
 </template>
 
-<script lang="ts" setup>
-  import { computed } from 'vue';
-  import enUS from '@arco-design/web-vue/es/locale/lang/en-us';
-  import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
-  import useLocale from '@/hooks/locale';
+<script setup lang="ts">
+  import { watchEffect } from 'vue';
+  import { useRoute } from 'vue-router';
+  import { ConfigProvider } from 'ant-design-vue';
+  import { transformI18n } from './hooks/useI18n';
+  import { LockScreen } from '@/components/basic/lockscreen';
+  import { useLocale } from '@/locales/useLocale';
 
-  const { currentLocale } = useLocale();
-  const locale = computed(() => {
-    switch (currentLocale.value) {
-      case 'zh-CN':
-        return zhCN;
-      case 'en-US':
-        return enUS;
-      default:
-        return enUS;
+  const route = useRoute();
+  const { getAntdLocale } = useLocale();
+
+  watchEffect(() => {
+    if (route.meta?.title) {
+      // 翻译网页标题
+      document.title = transformI18n(route.meta.title);
     }
   });
 </script>
+
+<style lang="less"></style>

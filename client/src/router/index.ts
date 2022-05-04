@@ -1,45 +1,50 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import NProgress from 'nprogress'; // progress bar
-import 'nprogress/nprogress.css';
+import 'nprogress/css/nprogress.css'; // 进度条样式
+import { type App } from 'vue';
+import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
 
-import DefaultLayout from '@/layout/default-layout.vue';
-import appRoutes from './routes';
-import createRouteGuard from './guard';
+import { createRouterGuards } from './router-guards';
 
-NProgress.configure({ showSpinner: false }); // NProgress Configuration
+import outsideLayout from './outsideLayout';
+import { whiteNameList } from './constant';
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: '/',
-      redirect: 'login',
+export const routes: Array<RouteRecordRaw> = [
+  {
+    path: '/',
+    name: 'Layout',
+    redirect: '/dashboard/welcome',
+    component: () => import(/* webpackChunkName: "layout" */ '@/layout/index.vue'),
+    meta: {
+      title: '首页',
     },
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('@/views/login/index.vue'),
-      meta: {
-        requiresAuth: false,
-      },
-    },
-    {
-      name: 'root',
-      path: '/',
-      component: DefaultLayout,
-      children: appRoutes,
-    },
-    {
-      path: '/:pathMatch(.*)*',
-      name: 'notFound',
-      component: () => import('@/views/not-found/index.vue'),
-    },
-  ],
-  scrollBehavior() {
-    return { top: 0 };
+    children: [],
   },
+  // Layout之外的路由
+  ...outsideLayout,
+];
+
+export const router = createRouter({
+  // process.env.BASE_URL
+  history: createWebHashHistory(''),
+  routes,
 });
 
-createRouteGuard(router);
+// reset router
+export function resetRouter() {
+  router.getRoutes().forEach((route) => {
+    const { name } = route;
+    if (name && !whiteNameList.some((n) => n === name)) {
+      router.hasRoute(name) && router.removeRoute(name);
+    }
+  });
+}
 
+export async function setupRouter(app: App) {
+  // 创建路由守卫
+  createRouterGuards(router, whiteNameList);
+
+  app.use(router);
+
+  // 路由准备就绪后挂载APP实例
+  await router.isReady();
+}
 export default router;

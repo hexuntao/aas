@@ -1,80 +1,143 @@
 <template>
-  <div class="container">
-    <div class="logo">
-      <img
-        alt="logo"
-        src="//p3-armor.byteimg.com/tos-cn-i-49unhts6dw/dfdba5317c0c20ce20e64fac803d52bc.svg~tplv-49unhts6dw-image.image"
-      />
-      <div class="logo-text">Arco Design Pro</div>
+  <div class="login-box">
+    <div class="login-logo">
+      <!-- <svg-icon name="logo" :size="45" /> -->
+      <img src="~@/assets/images/logo.png" width="45" />
+      <h1 class="mb-0 ml-2 text-3xl font-bold">Antd Admin</h1>
     </div>
-    <LoginBanner />
-    <div class="content">
-      <div class="content-inner">
-        <LoginForm />
-      </div>
-      <div class="footer">
-        <Footer />
-      </div>
-    </div>
+    <a-form layout="horizontal" :model="state.formInline" @submit.prevent="handleSubmit">
+      <a-form-item>
+        <a-input v-model:value="state.formInline.username" size="large" placeholder="rootadmin">
+          <template #prefix><user-outlined type="user" /></template>
+        </a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-input
+          v-model:value="state.formInline.password"
+          size="large"
+          type="password"
+          placeholder="123456"
+          autocomplete="new-password"
+        >
+          <template #prefix><lock-outlined type="user" /></template>
+        </a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-input
+          v-model:value="state.formInline.verifyCode"
+          placeholder="验证码"
+          :maxlength="4"
+          size="large"
+        >
+          <template #prefix><SafetyOutlined /></template>
+          <template #suffix>
+            <img
+              :src="state.captcha"
+              class="absolute right-0 h-full cursor-pointer"
+              @click="setCaptcha"
+            />
+          </template>
+        </a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-button type="primary" html-type="submit" size="large" :loading="state.loading" block>
+          登录
+        </a-button>
+      </a-form-item>
+    </a-form>
   </div>
 </template>
 
-<script lang="ts" setup>
-  import Footer from '@/components/footer/index.vue';
-  import LoginBanner from './components/banner.vue';
-  import LoginForm from './components/login-form.vue';
+<script setup lang="ts">
+  import { reactive } from 'vue';
+  import { UserOutlined, LockOutlined, SafetyOutlined } from '@ant-design/icons-vue';
+  import { useRoute, useRouter } from 'vue-router';
+  import { message, Modal } from 'ant-design-vue';
+  import { useUserStore } from '@/store/modules/user';
+  import { getImageCaptcha } from '@/api/login';
+
+  const state = reactive({
+    loading: false,
+    captcha: '',
+    formInline: {
+      username: '',
+      password: '',
+      verifyCode: '',
+      captchaId: '',
+    },
+  });
+
+  const route = useRoute();
+  const router = useRouter();
+
+  const userStore = useUserStore();
+
+  const setCaptcha = async () => {
+    const { id, img } = await getImageCaptcha({ width: 100, height: 50 });
+    state.captcha = img;
+    state.formInline.captchaId = id;
+  };
+  setCaptcha();
+
+  const handleSubmit = async () => {
+    const { username, password, verifyCode } = state.formInline;
+    if (username.trim() == '' || password.trim() == '') {
+      return message.warning('用户名或密码不能为空！');
+    }
+    if (!verifyCode) {
+      return message.warning('请输入验证码！');
+    }
+    message.loading('登录中...', 0);
+    state.loading = true;
+    console.log(state.formInline);
+    // params.password = md5(password)
+    try {
+      await userStore.login(state.formInline).finally(() => {
+        state.loading = false;
+        message.destroy();
+      });
+      message.success('登录成功！');
+      setTimeout(() => router.replace((route.query.redirect as string) ?? '/'));
+    } catch (error: any) {
+      Modal.error({
+        title: () => '提示',
+        content: () => error.message,
+      });
+      setCaptcha();
+    }
+  };
 </script>
 
 <style lang="less" scoped>
-  .container {
+  .login-box {
     display: flex;
+    width: 100vw;
     height: 100vh;
-
-    .banner {
-      width: 550px;
-      background: linear-gradient(163.85deg, #1d2129 0%, #00308f 100%);
-    }
-
-    .content {
-      position: relative;
-      display: flex;
-      flex: 1;
-      align-items: center;
-      justify-content: center;
-      padding-bottom: 40px;
-    }
-
-    .footer {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-    }
-  }
-
-  .logo {
-    position: fixed;
-    top: 24px;
-    left: 22px;
-    z-index: 1;
-    display: inline-flex;
+    padding-top: 240px;
+    background: url('@/assets/login.svg');
+    background-size: 100%;
+    flex-direction: column;
     align-items: center;
 
-    &-text {
-      margin-right: 4px;
-      margin-left: 4px;
-      color: var(--color-fill-1);
-      font-size: 20px;
-    }
-  }
-</style>
+    .login-logo {
+      display: flex;
+      margin-bottom: 30px;
+      align-items: center;
 
-<style lang="less" scoped>
-  // responsive
-  @media (max-width: @screen-lg) {
-    .container {
-      .banner {
-        width: 25%;
+      .svg-icon {
+        font-size: 48px;
+      }
+    }
+
+    :deep(.ant-form) {
+      width: 400px;
+
+      .ant-col {
+        width: 100%;
+      }
+
+      .ant-form-item-label {
+        padding-right: 6px;
       }
     }
   }
