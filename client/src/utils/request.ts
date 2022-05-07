@@ -26,12 +26,13 @@ const baseApiUrl = import.meta.env.VITE_BASE_API || '/';
 const baseMockUrl = import.meta.env.VITE_MOCK_API;
 
 const service = axios.create({
-  baseURL: baseApiUrl,
+  // baseURL: baseApiUrl,
   timeout: 6000,
 });
 
 service.interceptors.request.use(
   (config) => {
+    console.log(config);
     const token = Storage.get(ACCESS_TOKEN_KEY);
     if (token && config.headers) {
       // 请求头token信息，请根据实际情况进行修改
