@@ -1,6 +1,6 @@
 import 'nprogress/css/nprogress.css'; // 进度条样式
 import { type App } from 'vue';
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 import { createRouterGuards } from './router-guards';
 
@@ -24,7 +24,7 @@ export const routes: Array<RouteRecordRaw> = [
 
 export const router = createRouter({
   // process.env.BASE_URL
-  history: createWebHashHistory(''),
+  history: createWebHistory(''),
   routes,
 });
 
